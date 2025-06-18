@@ -1,3 +1,6 @@
 
+# Pycache
+__pycache__/*
 
+# Kate text editor files.
 *.kate-swp

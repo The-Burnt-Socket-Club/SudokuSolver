@@ -4,8 +4,17 @@ class Symbol:
     def __init__(self, name):
         self.name = name
 
+    def content(self):
+        return self.name
+
+    def __repr__(self):
+        return str(self)
+
     def __str__(self):
         return self.name
+
+    def __len__(self):
+        return 1
 
 class Operators:
     def __init__(self):
@@ -13,6 +22,9 @@ class Operators:
 
     def content(self):
         return self.c
+
+    def __repr__(self):
+        return str(self)
 
     def set_content(self, c):
         self.content = c
@@ -22,6 +34,9 @@ class Operators:
 
     def distribute(self):
         return self
+
+    def __len__(self):
+        return len(self.content())
 
     def eliminate(self):
         return self
@@ -63,6 +78,9 @@ class NOT(Operators):
         if self.isclause:
             out = f"¬({self.content()})"
         return out
+
+    def __len__(self):
+        return 1
 
     def content(self):
         return self.c
@@ -190,6 +208,9 @@ class Biconditional(Operators):
     def content(self):
         return [self.a, self.b]
 
+    def __len__(self):
+        return 2
+
     def __str__(self):
         x = [f"({str(i)})" if type(i) is not Symbol else str(i) for i in [self.a, self.b]]
         return f"{x[0]} ↔ {x[1]}"
@@ -208,6 +229,9 @@ class Implication(Operators):
     def content(self):
         return [self.a, self.b]
 
+    def __len__(self):
+        return 2
+
     def __str__(self):
         x = [f"({str(i)})" if (type(i) not in [Symbol, NOT]) else str(i) for i in [self.a, self.b]]
         return f"{x[0]} → {x[1]}"
@@ -220,70 +244,50 @@ class Implication(Operators):
 # The conjunctive normal form is a conjuction of disjuctions.
 def CNF(statement):
     def scour(statement, cls, scouring_f):
-        print("scouring", statement, "type", type(statement).__name__, "required", cls.__name__)
+        # print("scouring", statement, "type", type(statement).__name__, "required", cls.__name__)
         # if nothing to do, return as is
         if type(statement) is Symbol:
-            print("\tsymbol; returning")
+            # print("\tsymbol; returning")
             return statement
         elif type(statement) is cls:  # otherwise hit
-            print("found! before:", statement)
+            # print("found! before:", statement)
             statement = scouring_f(statement)
-            print("after", statement, "type after", type(statement).__name__)
+            # print("after", statement, "type after", type(statement).__name__)
             if type(statement) is Symbol:
                 return statement
         # Go through each of the elements inside the class, looking for the target
-        print("\tbreakdown; looking at", [str(i) for i in statement], "inside type", type(statement).__name__)
+        # print("\tbreakdown; looking at", [str(i) for i in statement], "inside type", type(statement).__name__)
         c = [scour(i, cls, scouring_f) for i in statement]
-        print("\t\tscour done, result", [str(i) for i in c])
+        # print("\t\tscour done, result", [str(i) for i in c])
         # Update contents
         statement.update_content(c)
-        print("\t\tupdated vals")
+        # print("\t\tupdated vals")
 
         # Remove nested items
         statement = statement.nested()
 
         # Remove double negation
 
-        print("\t\tcleaned nests")
-        print("\t\treturning")
+        # print("\t\tcleaned nests")
+        # print("\t\treturning")
         return statement
 
     #Related to Biconditionals and Implications
     level_1 = [Biconditional, Implication]
-    print("Attempting to convert the following to CNF", statement)
+    # print("Attempting to convert the following to CNF", statement)
     for sub_level in level_1:
-        print("\tRemoving", sub_level.__name__, "...")
+        # print("\tRemoving", sub_level.__name__, "...")
         statement = scour(statement, sub_level, sub_level.eliminate)
-        print("\tResult")
-        print(statement)
+        # print("\tResult")
+        # print(statement)
 
-    print("\tNow NOT")
+    # print("\tNow NOT")
     # Related to NOT
     statement = scour(statement, NOT, NOT.infer)
     # Finally apply the OR implications
-    print(statement, "before")
+    # print(statement, "before")
     statement = scour(statement, OR, OR.distribute)
 
-
-
     return statement
-
-
-
-x = [Symbol(i) for i in "abcdefgh"]
-y = Implication(OR(x[0], x[1]), x[2])
-# ((A AND (NOT B)) → (C OR D)) ↔ (E → (F AND G))
-y = Biconditional(Implication(AND(x[0], NOT(x[1])), OR(x[2], x[3])), Implication(x[4], AND(x[5], x[6])))
-# y = NOT(OR(x[2], NOT(AND(x[0], NOT(x[1]))), x[3]))
-# y = OR(NOT(x[0]), x[2])
-# y = NOT(Implication(AND(x[0], x[1]), OR(x[2], x[3])))
-print(y)
-print(CNF(y))
-# y = NOT(OR(x[1], x[3], x[5]))
-# print(y.content())
-# print(type(y.content()))
-# print(list(y.content()))
-# for z in y:
-#     print(z)
 
 
