@@ -60,6 +60,10 @@ cell has been found.
 
 Currently, the program can convert statements into CNF. The idea of resolving many statements into fewer symbols is now being looked at.
 
+### 19th June:
 
+Idea was to have grid as a global network and all the subclasses _Container_, _Rows_, _Columns_, _Boxes_ acess the cells inside grid via the index values -- so the subclasses only store indicies to the cells and no mutations are made in the sub-classes.
+
+However, all of this is imported by the main file, so the global variable **grid** can no longer be accessed by these functions from the  main file. Thus, it becomes necessary to the take grid as an input whereever necessary and return the mutated grid which shall be assigned to a variable in the main file.
 
 
