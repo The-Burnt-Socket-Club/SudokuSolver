@@ -68,3 +68,4 @@ However, all of this is imported by the main file, so the global variable **grid
 
 Similarly, the globals variables cols, rows and boxes will have to be changed.
 
+Another idea is to represent the containers inside each grid as attributes. Yeah, I think I'll stick to this for now.
