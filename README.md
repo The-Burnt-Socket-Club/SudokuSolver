@@ -66,4 +66,5 @@ Idea was to have grid as a global network and all the subclasses _Container_, _R
 
 However, all of this is imported by the main file, so the global variable **grid** can no longer be accessed by these functions from the  main file. Thus, it becomes necessary to the take grid as an input whereever necessary and return the mutated grid which shall be assigned to a variable in the main file.
 
+Similarly, the globals variables cols, rows and boxes will have to be changed.
 
