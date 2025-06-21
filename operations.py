@@ -11,7 +11,7 @@ class Symbol:
         return str(self)
 
     def __str__(self):
-        return self.name
+        return str(self.name)
 
     def __len__(self):
         return 1
@@ -289,5 +289,11 @@ def CNF(statement):
     statement = scour(statement, OR, OR.distribute)
 
     return statement
+
+
+if __name__ == "__main__":
+    x = [Symbol(i) for i in "abcdefghi"]
+    blah = NOT(AND(x[0], x[1]))
+    print(CNF(blah))
 
 
