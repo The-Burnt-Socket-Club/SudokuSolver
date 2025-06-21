@@ -54,7 +54,7 @@ def main():
             pos = []
             print("\tlooping through values in box", boxes[box].rep(grid))
             for empty in boxes[box].getEmtpy():
-                if not cols[empty[1]].has(num) and not rows[empty[0]].has(num):
+                if not cols[empty[1]].has(num) and not rows[empty[0]].has(num) and num in grid.fetch(empty).possibilities:
                     # print(empty, "could have num", type(grid))
                     pos.append(empty)
                 else:
@@ -99,7 +99,7 @@ def main():
     return grid
 
 
-grid = Grid(loadFile("samples/sudoku1.txt"))
+grid = Grid(loadFile("samples/sudoku2.txt"))
 rows, cols, boxes = grid.container[:]
 print(grid.getNumMap())
 print(main())
