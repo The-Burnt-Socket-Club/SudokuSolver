@@ -9,10 +9,10 @@ def main(grid, containers):
     def handle_new_vals(index, num):
         nonlocal grid, rows, cols, boxes
         global steps
-        # print("adding value", num, "at index", index)
+        print("adding value", num, "at index", index)
         grid.setVal(index, num)
         # print("new grid:")
-        # print(grid)
+        print(grid)
         steps += 1
         rows, cols, boxes = newValue(num, index, [rows, cols, boxes])
         #print(rows[index[0]].rep(grid))
@@ -111,7 +111,9 @@ def main(grid, containers):
         # for i in range(Grid.size):
             #print(rows[i].rep(grid))
             #print([grid.fetch(elem).getValue() if elem not in rows[i].getEmtpy() else grid.fetch(elem).possibilities for elem in rows[i].cells])
+        print("going to make a guess. least val:")
         index, least, pos_s = grid.leastPos()
+        print("\t", index, least, pos_s)
         val = 1
         #print("leastval returned", index, least, pos_s)
         for pos in pos_s:
@@ -123,13 +125,13 @@ def main(grid, containers):
             new_grid = copy.deepcopy(grid)
             #print("id match", id(new_grid), id(grid))
             #print("copy\n", new_grid)
-            handle_new_vals(index, pos)
-            print("added number")
             #print("here's the new grid:")
             #print(new_grid, id(new_grid), id(grid))
-            print(grid)
+            # print(grid)
             #print("after", new_grid)
             try:
+                handle_new_vals(index, pos)
+                print("added number")
                 return main(grid, [rows, cols, boxes])
             except IndexError as ind_err:
                 raise IndexError(ind_err)
@@ -169,7 +171,7 @@ def main(grid, containers):
     return grid
 
 
-grid = Grid(loadFile("samples/sudoku3.txt"))
+grid = Grid(loadFile("samples/sudoku5.txt"))
 rows, cols, boxes = grid.container[:]
 steps = 0
 print(grid.getNumMap())

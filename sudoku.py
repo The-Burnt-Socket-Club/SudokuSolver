@@ -121,8 +121,8 @@ class Container:
         if but_not is None:
             but_not = []
         onlyPos = []
-        # print("value of", self.rep(grid), "before eliminating", num, ":")
-        # print([grid.fetch(elem).getValue() if elem not in self.getEmtpy() else grid.fetch(elem).possibilities for elem in self.cells])
+        print("value of", self.rep(grid), "before eliminating", num, ":")
+        print([grid.fetch(elem).getValue() if elem not in self.getEmtpy() else grid.fetch(elem).possibilities for elem in self.cells])
         for empty in self.getEmtpy():
             if empty in but_not:
                 continue
@@ -132,7 +132,7 @@ class Container:
                 # print("\tcell", empty, "after:", grid.fetch(empty).getValue(), ",", grid.fetch(empty).possibilities, grid.fetch(empty).kb)
                 if len(grid.fetch(empty).possibilities) == 1:
                     onlyPos.append((empty, grid.fetch(empty).possibilities[0]))
-        # print("rows changed", type(self).__name__, "to", [grid.fetch(elem).getValue() if elem not in self.getEmtpy() else grid.fetch(elem).possibilities for elem in self.cells])
+        print("changed", type(self).__name__, "to", [grid.fetch(elem).getValue() if elem not in self.getEmtpy() else grid.fetch(elem).possibilities for elem in self.cells])
         # print("only pos is", onlyPos)
         # print("GRID TYPE", type(grid))
         return grid, onlyPos
