@@ -37,8 +37,15 @@ class Cell:
         """
         # print("before adding", self.kb)
         self.kb.add(proposition)
+        # print("proposition added. new kb:", self.kb)
         # print("after adding", self.kb)
+        # for i in self.kb.KB():
+        # print(i)
         self.kb = resolve(self.kb)
+        # print("resolved:", self.kb)
+        if self.kb is None:
+            raise ValueError("Cell reduced to no possibilities. No solution")
+            
         # print("after resolving", self.kb)
         self.possibilities = [int(i.content()) for i in self.kb.KB()[0]]
     
@@ -114,17 +121,19 @@ class Container:
         if but_not is None:
             but_not = []
         onlyPos = []
-        print("value of", self.rep(grid), "before eliminating", num, ":")
-        print([grid.fetch(elem).getValue() if elem not in self.getEmtpy() else grid.fetch(elem).possibilities for elem in self.cells])
+        # print("value of", self.rep(grid), "before eliminating", num, ":")
+        # print([grid.fetch(elem).getValue() if elem not in self.getEmtpy() else grid.fetch(elem).possibilities for elem in self.cells])
         for empty in self.getEmtpy():
             if empty in but_not:
                 continue
             if grid.fetch(empty) and grid.fetch(empty).couldHave(num):
+                # print("\tcell", empty, "before:", grid.fetch(empty).getValue(), ",", grid.fetch(empty).possibilities, grid.fetch(empty).kb)
                 grid.g[empty[0]][empty[1]].consider(NOT(Symbol(num)))
+                # print("\tcell", empty, "after:", grid.fetch(empty).getValue(), ",", grid.fetch(empty).possibilities, grid.fetch(empty).kb)
                 if len(grid.fetch(empty).possibilities) == 1:
                     onlyPos.append((empty, grid.fetch(empty).possibilities[0]))
-        print("rows changed", type(self).__name__, "to", [grid.fetch(elem).getValue() if elem not in self.getEmtpy() else grid.fetch(elem).possibilities for elem in self.cells])
-        print("only pos is", onlyPos)
+        # print("rows changed", type(self).__name__, "to", [grid.fetch(elem).getValue() if elem not in self.getEmtpy() else grid.fetch(elem).possibilities for elem in self.cells])
+        # print("only pos is", onlyPos)
         # print("GRID TYPE", type(grid))
         return grid, onlyPos
 
@@ -237,6 +246,8 @@ def sameVert(indicies):
     returns True if a set of indicies lie on the same row/col
     Assumes the indicies to lie in the same Box
     """
+    if not len(indicies):
+        return False, None
     if len(indicies) > 3:
         return False, None
     elif all([i[0] == indicies[0][0] for i in indicies]):
@@ -248,10 +259,15 @@ def sameVert(indicies):
 
 class Grid:
     size = 9
-    def __init__(self, g):
+    def __init__(self, g, everything=None):
         """
         Take the grid and converts each cell into an instance of class Cell    
+        Or takes in everything=[g, numberMap, container] and spares the re-init
         """
+        if everything is not None:
+            self.g, self.numberMap, self.container = everything
+            self.r, self.c, self.b = self.container
+            return
         print("this is what came", g)
         r, c, b = init_containers()
 
@@ -275,24 +291,56 @@ class Grid:
         self.b = b
         print("*"*123, cells)
         self.g = cells
+        self.clearBoxes()
+    
+    def clearBoxes(self):
+        for index in [item for indicies in self.getNumMap().values() for item in indicies]:
+            for i in self.boxes()[(index[0]//3)*3+index[1]//3].getEmtpy():
+                self.g[i[0]][i[1]].consider(NOT(Symbol(self.fetch(index).getValue())))
     
     def getNumMap(self):
         return self.numberMap.copy()
+    
+    def leastPos(self):
+        index = (0, 0)
+        least = 9
+        for i in self.iterIndex():
+            if not self.fetch(i).empty():
+                continue
+            if len(self.fetch(i).possibilities) < least and len(self.fetch(i).possibilities) != 0:
+                index = i
+                least = len(self.fetch(i).possibilities)
+        return index, least, self.fetch(index).possibilities
+    
+    def __iter__(self):
+        return iter([self.fetch((index)) for index in self.iterIndex()])
+    
+    def allEmpty(self):
+        """
+        returns all the empty indicies of self
+        """
+        pass
+    
+    def iterIndex(self):
+        return iter([(i, j) for i in range(Grid.size) for j in range(Grid.size)])
     
     def fetch(self, index):
         return self.getGrid()[index[0]][index[1]]
     
     def rows(self):
-        return self.rows()
+        return self.r
+    
+    def getContainer(self):
+        return self.container[:]
     
     def full(self):
         return all(all([self.fetch((i, j)).getValue() is not None]) for i in range(Grid.size) for j in range(Grid.size))
-    
+
     def cols(self):
-        return self.cols()
+        return self.c
     
     def boxes(self):
-        return self.boxes()
+        return self.b
 
     def defaultBase(self):
         symbs = [Symbol(i) for i in range(1, Grid.size+1)]
@@ -336,12 +384,14 @@ if __name__ == "__main__":
 
     d = loadFile("samples/sudoku1.txt")
 
-    grid = Grid(d)
+    # grid = Grid(d)
     c = Cell(None)
-    print(c)
+    for num in range(1, 9):
+        print("\t\tremoving", num)
+        c.consider(NOT(Symbol(num)))
     print(c.kb)
-    c.consider(NOT(Symbol(3)))
-    print(sameVert([(0, 1), (3, 1), (6, 1)]))
+    c.consider(NOT(Symbol(9)))
+    # print(sameVert([(0, 1), (3, 1), (6, 1)]))
     # print(c.possibilities)
     # print(repr(cols), repr(rows))
     # for box in boxes.values():

@@ -22,7 +22,9 @@ class Clause:
         # print("\tinside isMatch", type(a), type(b))
         # print("\tvals:", a, b, "content", a.content(), b.content())
         if type(a) == type(b):
+            # print("type is the same")
             return a.content() == b.content()
+                
 
     def add(self, a):
         if not self.inside(a):
@@ -50,7 +52,7 @@ class Clause:
             # print("considering", i)
             n = NOT(i).infer()
             # print("not is", n)
-            # print("checking if", n, "is in", repr(o), n in o)
+            # print("checking if", n, "is in", repr(o), other.isMatch(other.sentence()[0], n))
             if other.inside(n):
                 # print("\tit is")
                 m = Clause([])
@@ -195,6 +197,10 @@ if __name__ == "__main__":
         Implication(x[1], NOT(x[0]))
     ]
     k = KnowledgeBase(*x)
+    print("merging")
+    c1 = Clause([Symbol(3)])
+    c2 = Clause([NOT(Symbol(3))])
+    print(c1.merge(c2))
 
     print([CNF(i) for i in x])
     print(k)

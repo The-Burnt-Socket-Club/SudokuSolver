@@ -12,6 +12,11 @@ class Symbol:
 
     def __str__(self):
         return str(self.name)
+    
+    def __eq__(self, other):
+        if type(self) == type(other):
+            return self.name == other.name
+        return False
 
     def __len__(self):
         return 1
