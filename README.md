@@ -30,7 +30,7 @@ To input a sudoku to be solved, head over to the `samples` directory and create 
 
 Here's an example grid:
 
-```json
+```
 .4..2.865
 7..6.8...
 1....47.2
