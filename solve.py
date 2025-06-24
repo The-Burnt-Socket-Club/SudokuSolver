@@ -4,7 +4,6 @@ from sudoku import *
 import copy
 
 
-
 def main(grid, containers):
     def handle_new_vals(index, num):
         nonlocal grid, rows, cols, boxes
@@ -44,7 +43,8 @@ def main(grid, containers):
             handle_new_vals(i[0], i[1])
     # rows, cols, boxes -> lists
     # step 1:
-    global steps
+    global steps, loops
+    loops += 1
     if steps % 500 < 10:
         print(steps)
     if steps >= 3500:
@@ -105,6 +105,7 @@ def main(grid, containers):
     # print("FULL?", grid.full())
     if grid.full():
         print("final steps:", steps)
+        print("total loops:", loops)
         return grid
     if grid.getNumMap() == og:
         #print("NOTHING'S CHANGED THIS LOOP => BACKTRACKING METHOD TIME")
@@ -116,7 +117,7 @@ def main(grid, containers):
         print("\t", index, least, pos_s)
         val = 1
         #print("leastval returned", index, least, pos_s)
-        for pos in pos_s:
+        for pos in reversed(pos_s):
             # print("before guess")
             # print(grid)
             print(f"guessing...({val}) ..", pos, "at index", index)
@@ -171,9 +172,10 @@ def main(grid, containers):
     return grid
 
 
-grid = Grid(loadFile("samples/sudoku5.txt"))
+grid = Grid(loadFile("samples/sudoku3.txt"))
 rows, cols, boxes = grid.container[:]
 steps = 0
+loops = 0
 print(grid.getNumMap())
 print(main(grid, [rows, cols, boxes]))
 # print(grid)

@@ -1,73 +1,75 @@
 # Solves Sudokus
 
-A lot of the logical aspect of the code has been understood from the CS50 AI course; lecture 1: Knowledge. To learn more about ideas
-related to this topic, see [this](https://www.youtube.com/watch?v=HWQLez87vqM). Lectures slides also available [here](https://cdn.cs50.net/ai/2020/spring/lectures/1/lecture1.pdf).
+As the name suggests, this program solves sudokus.
+My first idea involved the use of propositional logic to try and rule out the often perplexing connections between various numbers at play in a sudoku game. For this, I refered to the following:
 
-## Propositional Logic
+- [CS50 AI: Lecture 1 - Knowledge](https://www.youtube.com/watch?v=HWQLez87vqM)
+- [And lecture slides for the same](https://cdn.cs50.net/ai/2020/spring/lectures/1/lecture1.pdf)
 
-A way to represent knowledge using boolean statements. These statements are communicated via symbols and operators.
-Operators include the following:
-- AND
-- OR
-- NOT
-- Biconditional
-- Implication
+However, I soon realised that solving this problem was perhaps better suited to another approach - the idea of elimination and later, backtracking.
 
-Consider the following statement:
+These ideas were simple enough for me to implement my algorithms for the same. Still, I'm grateful to [SudokuWiki.org by Andrew Stuart](https://www.sudokuwiki.org/sudoku.htm) for widening my perspective on solving sudokus.
 
-> I'll go for a walk if I wake up early. This is an example of an implication.
+Having said this, let's get on with the implementation.
 
-Here, B, waking up early implies (->) A, going for a walk.
+## Running the program
 
-### Truth Tables
+Needs no installed libraries. So simply clone this repository from the command line, change directory and run.
 
-are used to represent all possible values a logical statement can equal by equating each term to be True or False.
+```bash
+git clone https://github.com/The-Burnt-Socket-Club/SudokuSolver
 
-Here's the Truth Table for the same.
+cd SudokuSolver
 
-| A        | B       | A -> B |
-| -------- | ------- |--------|
-| True     | True    | True   |
-| True     | False   | True   |
-| False    | True    | True   |
-| False    | False   | False  |
+python solver.py
+```
 
-Thus, A -> B is only False when A is True and B is False. (I know it can be a little confusing to get around to why A -> B is True when A is False)
+To input a sudoku to be solved, head over to the `samples` directory and create a new file with 9 characters on each row, each representing a row of characters of a sudoku puzzle.
 
-Know, one way of evaluating long drawn out sentences is to form elaborate Truth tables for the same and it's only for a certain Truth value that the
-expression shall resolve into a resulting True value.
-This approach is called _Model Checking_. However, consider how the time complexity of the computation grows with increasingly many Propositional Symbols
-and operators:
-As each symbol can adopt 2 values, the total number of possibilities that need to be expresses to calculate a Truth table for n symbols is $2^n$ .
-This method is thus expensive and inefficient. It should be noted that there exist a certain number of optimizations for this algorithm, (e.g., if additional)
-information is available to us - like along with a complicated sentence, some smaller sentences which can be used to restrict the values of some symbols).
-I believe these optimizations can greatly bring down the complexity by several degrees. I.e., $2 ^ n$ can be reduced to $2^{n/2}$ .
+**NOTE: Use `.` characters to represented empty cells**
 
-### Inference
+Here's an example grid:
 
-Inference is the other powerful idea that perhaps thinks more like humans do.
-It relies on manipulating certain operators in order to shape the entire sentence into a _Conjunctive Standard Form_ (CNF). Conjunction refers to the AND/Conjunction operator.
-The idea is simple.
+```json
+.4..2.865
+7..6.8...
+1....47.2
+.1874....
+..52.96..
+....8615.
+9.15....6
+...8.2..7
+873.6..2.
+```
 
-Sentences represented using some operators can also be represented alternatively via some other operators. Thus, the idea is to continue making inferences until
-the entirety of the sentence is in CNF. Once in CNF, another crucial idea of inference can be used to the arrive at a desired result.
+Finally, change the filename parameter in the `loadData` function as part of this line of code (currently at the bottom of the file)
 
-But first, what does the result look like? In the case of the Sudoku solver, each cell is represented via a Knowledge Base - i.e., a set of sentences.
-The idea behind the inferences is to eliminate symbols so that the possible values the cell can hold may decrease. When there's only one possible value, the digit at the
-cell has been found.
+```python
+grid = Grid(loadFile("samples/sudoku3.txt"))
+```
 
-### Progress
 
-Currently, the program can convert statements into CNF. The idea of resolving many statements into fewer symbols is now being looked at.
+## Logic behind the program
 
-### 19th June:
+This is the most interesting bit. The process of creating this program itself required more debugging than actual coding. I grappled with new ideas like propositional logic and implemented classes with more rigour than ever before.
 
-Idea was to have grid as a global network and all the subclasses _Container_, _Rows_, _Columns_, _Boxes_ acess the cells inside grid via the index values -- so the subclasses only store indicies to the cells and no mutations are made in the sub-classes.
+While I would consider the `Grid`, `Clause`, `Container`, `Cell`, etc. classes to contain numerous utilities which this program wouldn't have been complete about, the essense of the program lies in the lines within `solve.py`.
 
-However, all of this is imported by the main file, so the global variable **grid** can no longer be accessed by these functions from the  main file. Thus, it becomes necessary to the take grid as an input whereever necessary and return the mutated grid which shall be assigned to a variable in the main file.
+Here's the idea in brief:
 
-Similarly, the globals variables cols, rows and boxes will have to be changed.
 
-Another idea is to represent the containers inside each grid as attributes. Yeah, I think I'll stick to this for now.
+```
+1. Repeat (recursion) until not solved
+2. Go through the numbers (most frequent first),
+3.   look into the boxes where this number isn't present
+4.     if there's a hidden single, add it and eliminate num from row/col/box
+5.     otherwise, if there's a pointing pair, eliminate from row or col (no need to eliminate box)
+6.       if elimination leads to a single, repeat elimination with new num. Repeat until the chain exhausts
+7. If this results in a solution, return.
+8. Having gone through all numbers, repeat entire the entire function,
+9. However, if no new number's been added in the present cycle, guess a value and be ready to backtrack.
+```
 
-Nopes. Problem with this. sometimes, containers need to access grid data without parameters (like with print or repr)...
+
+You're free to look through the code and ask about any part of it. Though, currently, it's quite messy with numerous commented/uncommented print statements sprawled about everywhere.
+
